@@ -1,0 +1,23 @@
+function GetCenterX {
+	return GetStgFrameWidth/2;
+}
+
+function GetCenterY {
+	return GetStgFrameHeight/2;
+}
+
+function GetEdgeLeft {
+	return 128;
+}
+
+function GetEdgeTop {
+	return 16;
+}
+
+function GetEdgeRight {
+	return 512;
+}
+
+function GetEdgeBottom {
+	return 464;
+}

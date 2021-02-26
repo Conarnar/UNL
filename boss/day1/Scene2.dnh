@@ -1,0 +1,132 @@
+
+#include "../../lib/include/include_Single.dnh"
+
+@Initialize {
+	Init;
+	Main;
+}
+
+@Event {
+	alternative(GetEventType)
+	case(EV_REQUEST_LIFE) {
+		SetScriptResult(2000);
+	}
+	case(EV_REQUEST_TIMER) {
+		SetScriptResult(60);
+	}
+	case(EV_REQUEST_SPELL_SCORE) {
+		SetScriptResult(6000000);
+	}
+}
+
+@MainLoop {
+	SetBossHitbox(64, 24);
+	yield;
+}
+
+@Finalize {
+}
+
+task Main {
+	EndTask;
+	ObjEnemy_SetDamageRate(objBoss, 100, 100);
+	ObjMove_SetDestAtFrame(objBoss, 320, 120, 60);
+
+	ObjPrim_SetTexture(objBoss, imgDirectory ~ "placeholder/nar.png");
+	ObjSprite2D_SetSourceRect(objBoss, 0, 0, 100, 100);
+	ObjSprite2D_SetDestCenter(objBoss);
+
+	wait(60);
+	let objScene = GetEnemyBossSceneObjectID;
+	ObjEnemyBossScene_StartSpell(objScene);
+	ObjEnemyBossScene_SetSpellTimer(objScene, 3600);
+	SpellName1("Light Path \"Iridescent Whirlwind\"", 10, 255, 10, objBoss);
+	Cutin1("thing.png", 0, 0, 100, 100, 100, 100, 0, -90);
+	BossLifebar(objBoss);
+	wait(120);
+	shoot;
+}
+
+function move {
+	let destX = GetCenterX + rand(-120, 120);
+	let destY = rand(120, 150);
+	let maxd = 60;
+
+	if ((destX - GetBossX)^2 + (destY - GetBossY)^2 > maxd^2) {
+		let angle = atan2(destY - GetBossY, destX - GetBossX);
+		destX = GetBossX + cos(angle) * maxd;
+		destY = GetBossY + sin(angle) * maxd;
+	}
+
+	ObjMove_SetDestAtWeight(objBoss, destX, destY, 20, 4);
+	return [destX, destY];
+}
+
+task shoot {
+	Concentration2(GetBossX, GetBossY, 120, 60, 30, 2, 240, 180, -1, 15, BLEND_SUBTRACT, 255, 100, 255);
+
+	loop {
+		let start = rand(0, 360);
+		let start2 = rand(0, 360);
+		let z = 3 + GetDifficulty;
+
+		ascent(a in 0 .. 100) {
+			ascent(b in 0 .. z) {
+				let obj = CreateShotA1(0, -30, 0, 180, ARROWHEAD[a % 15], 10);
+				spin(obj, a * 11 + start + b * 360/z, -30, -0.5, 1.7 + GetStage * 0.1 + sin(a * 3 + start2 + b * 360/z));
+			}
+
+			a++;
+
+			wait(4);
+		}
+
+		move;
+		wait(120 - GetStage * 12);
+
+		start = rand(0, 360);
+		start2 = rand(0, 360);
+		ascent(a in 0 .. 100) {
+			ascent(b in 0 .. z) {
+				let obj = CreateShotA1(0, -30, 0, 0, ARROWHEAD[a % 15], 10);
+				spin(obj, a * -11 + start + b * 360/z, -30, 0.5, 1.7 + GetStage * 0.1 + sin(a * 3 + start2 + b * 360/z));
+			}
+
+			a++;
+			wait(4);
+		}
+
+		move;
+		wait(120 - GetStage * 12);
+	}
+}
+
+task spin(obj, a, y, ac, yc) {
+	ObjShot_SetSpellResist(obj, true);
+
+	while(!Obj_IsDeleted(obj)) {
+		ObjMove_SetDestAtFrame(obj, GetCenterX + sin(a) * 200, y, 1);
+		ObjRender_SetScaleXYZ(obj, (cos(a) + 2)/3, (cos(a) + 2)/3, 0);
+		ObjRender_SetAlpha(obj, cos(a) * 100 + 255);
+		ObjShot_SetIntersectionEnable(obj, cos(a) > 0);
+
+		if (cos(a) > 0) {
+			Obj_SetRenderPriorityI(obj, GetShotRenderPriorityI);
+		} else {
+			Obj_SetRenderPriorityI(obj, 29);
+		}
+
+		a += ac;
+		y += yc;
+
+		yield;
+	}
+}
+
+function GetDifficulty() {
+	return 2;
+}
+
+function GetStage() {
+	return 2;
+}

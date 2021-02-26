@@ -1,0 +1,93 @@
+
+#include "../lib/lib_Directories.dnh"
+
+let bgmList;
+let playing = -1;
+
+@Initialize{
+	bgmList = [
+		LoadBgm("bgm0.ogg", 200570, 3491998),
+		LoadBgm("bgm34.ogg", 290824, 6254118),
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID,
+		ID_INVALID
+		];
+}
+
+@Event {
+	alternative(GetEventType)
+	case(EV_USER_PACKAGE) {
+		let next = GetEventArgument(0);
+		if (playing != -1 && playing != next) {
+			ObjSound_Stop(bgmList[playing]);
+		}
+
+		playing = next;
+		ObjSound_SetRestartEnable(bgmList[playing], false);
+		ObjSound_SetVolumeRate(bgmList[playing], GetMusicVolume);
+		ObjSound_Play(bgmList[playing]);
+		ObjSound_SetRestartEnable(bgmList[playing], true);
+	}
+	case(EV_USER_PACKAGE + 1) {
+		alternative(GetEventArgument(0))
+		case(0) {
+			if (playing != -1) {
+				ObjSound_SetVolumeRate(bgmList[playing], GetMusicVolume);
+				ObjSound_Play(bgmList[playing]);
+			}
+		}
+		case(1) {
+			if (playing != -1) {
+				ObjSound_Stop(bgmList[playing]);
+			}
+		}
+		case(2) {
+			if (playing != -1) {
+				let bgm = bgmList[playing];
+
+				FadeStop(bgm);
+			}
+		}
+	}
+}
+
+@MainLoop{
+	yield;
+}
+
+@Finalize {
+}
+
+function LoadBgm(file, lp1, lp2) {
+	let bgm = ObjSound_Create;
+	ObjSound_Load(bgm, bgmDirectory ~ file);
+	ObjSound_SetSoundDivision(bgm, SOUND_BGM);
+	ObjSound_SetLoopEnable(bgm, true);
+	ObjSound_SetLoopSampleCount(bgm, lp1, lp2);
+	ObjSound_SetRestartEnable(bgm, true);
+	return bgm;
+}
+
+task FadeStop(bgm) {
+	descent(a in 0 .. 10) {
+		ObjSound_SetVolumeRate(bgm, GetMusicVolume * a/10);
+		yield;
+	}
+
+	ObjSound_Stop(bgm);
+}
+
+function GetMusicVolume {
+	return GetAreaCommonData("Options", "BGM Volume", 10) * 10;
+}

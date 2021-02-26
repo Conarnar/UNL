@@ -1,0 +1,41 @@
+function AngleDiff(a, b) {
+	let c = (a - b) % 360;
+	if (c > 180) {
+		c = 360 - c;
+	}
+	
+	return c;
+}
+
+function Reflection(angle, surface) {
+	return 360 - angle + 2 * surface;
+}
+
+function LineToLinePoint(x1, y1, x2, y2, x3, y3, x4, y4){
+	let point = [0, 0];
+	point[0] = (((x1*y2 - y1*x2)*(x3 - x4) - (x1 - x2)*(x3*y4 - y3*x4)) / ((x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4)));
+	point[1] = (((x1*y2 - y1*x2)*(y3 - y4) - (y1 - y2)*(x3*y4 - y3*x4)) / ((x1 - x2)*(y3 - y4) - (y1 - y2)*(x3 - x4)));
+	return point;
+}
+
+function LineToLinePoint2(x1, y1, a1, x2, y2, a2){
+	return LineToLinePoint(x1, y1, x1 + cos(a1), y1 + sin(a1), x2, y2, x2 + cos(a2), y2 + sin(a2));
+}
+
+function DigitToArray(digit, count) {
+	let res = [];
+	digit = truncate(digit);
+
+	loop {
+		let tnum = truncate(digit % 10);
+		digit /= 10;
+		res = [tnum] ~ res;
+		if(truncate(digit) == 0){break;}
+	}
+
+	loop(max(0, count - length(res))) {
+		res = [0] ~ res;
+	}
+
+	return res;
+}

@@ -1,0 +1,40 @@
+
+#include "../lib/lib_Directories.dnh"
+
+let seList;
+
+@Initialize{
+	seList = [
+		CreateSound("se_cursor00.wav"),
+		CreateSound("se_cursor01.wav"),
+		CreateSound("se_cursor02.wav"),
+		CreateSound("se_cursor03.wav"),
+		CreateSound("se_cursor04.wav")
+		];
+}
+
+@Event {
+	alternative(GetEventType)
+	case(EV_USER_PACKAGE + 2) {
+		let se = seList[GetEventArgument(0)];
+		Obj_SetValue(se, "SE Volume", GetEventArgument(1));
+		Obj_SetValue(se, "Pan Rate", GetEventArgument(2));
+		ObjSound_SetVolumeRate(se, GetAreaCommonData("Options", "Sound Volume", 10) * 10 * Obj_GetValue(se, "SE Volume")/100);
+		ObjSound_SetPanRate(se, (Obj_GetValue(se, "Pan Rate")));
+		ObjSound_Play(se);
+	}
+}
+
+@MainLoop{
+	yield;
+}
+
+@Finalize {
+}
+
+function CreateSound(path) {
+	let obj = ObjSound_Create;
+	ObjSound_Load(obj, seDirectory ~ path);
+	ObjSound_SetSoundDivision(obj, SOUND_SE);
+	return obj;
+}

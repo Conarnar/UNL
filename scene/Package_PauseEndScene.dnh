@@ -1,0 +1,94 @@
+function RunPauseScene() {
+	let textureName = GetTransitionRenderTargetName();
+	RenderToTextureA1(textureName, 0, 100, true);
+
+	PauseStageScene(true);
+	
+	let idScript = LoadScript(systemDirectory ~ "PauseScene.dnh");
+	StartScript(idScript);
+
+	while(!IsCloseScript(idScript)) {
+		yield;
+	}
+
+	PauseStageScene(false);
+
+	let res = GetScriptResult(idScript);
+	return res;
+}
+
+function RunLoseScene() {
+	if (IsReplay) {
+		MenuBG();
+		ReplayMenu();
+		return;
+	}
+	
+	FinalizeStageScene();
+	SetReplayInfo(REPLAY_COMMENT, IntToString(GetAreaCommonData("Stage Data", "day", 1)) ~ "-" ~ IntToString(GetAreaCommonData("Stage Data", "scene", 1)));
+	
+	let idScript = LoadScript(systemDirectory ~ "LoseScene.dnh");
+	StartScript(idScript);
+
+	while(!IsCloseScript(idScript)) {
+		yield;
+	}
+	
+	let res = GetScriptResult(idScript);
+	alternative (res)
+	case(RESULT_END) {
+		MenuBG();
+		SceneSelect();
+	} case(RESULT_RETRY) {
+		StartGame(false);
+	} case(RESULT_SAVE_REPLAY) {
+		RunReplaySaveScene(false);
+	}
+}
+
+function RunWinScene() {
+	if (IsReplay) {
+		MenuBG();
+		ReplayMenu();
+		return;
+	}
+	
+	FinalizeStageScene();
+	SetReplayInfo(REPLAY_COMMENT, IntToString(GetAreaCommonData("Stage Data", "day", 1)) ~ "-" ~ IntToString(GetAreaCommonData("Stage Data", "scene", 1)));
+	
+	let idScript = LoadScript(systemDirectory ~ "WinScene.dnh");
+	StartScript(idScript);
+
+	while(!IsCloseScript(idScript)) {
+		yield;
+	}
+	
+	let res = GetScriptResult(idScript);
+	alternative (res)
+	case(RESULT_END) {
+		MenuBG();
+		SceneSelect();
+	} case(RESULT_CANCEL) {
+		SetAreaCommonData("Stage Data", "scene", GetAreaCommonData("Stage Data", "scene", 1) + 1);
+		StartGame(false);
+	} case(RESULT_SAVE_REPLAY) {
+		RunReplaySaveScene(true);
+	} case(RESULT_RETRY) {
+		StartGame(false);
+	}
+}
+
+task RunReplaySaveScene(win) {
+	let idScript = LoadScript(systemDirectory ~ "ReplaySaveScene.dnh");
+	StartScript(idScript);
+
+	while(!IsCloseScript(idScript)) {
+		yield;
+	}
+	
+	if (win) {
+		RunWinScene();
+	} else {
+		RunLoseScene();
+	}
+}

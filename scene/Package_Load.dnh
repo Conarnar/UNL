@@ -1,0 +1,165 @@
+
+let objMenuBG = ID_INVALID;
+let objMenuBG2 = ID_INVALID;
+
+#include "../lib/lib_SoundConstants.dnh"
+#include "../lib/lib_Directories.dnh"
+#include "../lib/lib_Common.dnh"
+#include "../lib/lib_Effects.dnh"
+
+#include "./Package_Menu.dnh"
+#include "./Package_SceneSelect.dnh"
+#include "./Package_MusicRoom.dnh"
+#include "./Package_Options.dnh"
+#include "./Package_StageScene.dnh"
+#include "./Package_PauseEndScene.dnh"
+#include "./Package_ReplayMenu.dnh"
+
+function LoadResources {
+	LoadFonts(fontDirectory);
+	LoadImages(imgDirectory);
+	LoadSounds;
+	LoadCommonData;
+}
+
+function LoadImages(directory) {
+	let paths = GetFilePathList(directory);
+	
+	if (length(paths) > 0) {
+		ascent(a in 0 .. length(paths)) {
+			LoadTexture(paths[a]);
+			yield;
+		}
+	}
+	
+	paths = GetDirectoryList(directory);
+	
+	if (length(paths) > 0) {
+		ascent(a in 0 .. length(paths)) {
+			LoadImages(paths[a]);
+		}
+	}
+}
+
+function LoadFonts(directory) {
+	let paths = GetFilePathList(directory);
+
+	if (length(paths) > 0) {
+		ascent(a in 0 .. length(paths)) {
+			InstallFont(paths[a]);
+			yield;
+		}
+	}
+	
+	paths = GetDirectoryList(directory);
+	
+	if (length(paths) > 0) {
+		ascent(a in 0 .. length(paths)) {
+			LoadImages(paths[a]);
+		}
+	}
+}
+
+function LoadSounds {
+	let bgm = LoadScriptInThread(systemDirectory ~ "BGMHandle.dnh");
+	StartScript(bgm);
+
+	let se = LoadScriptInThread(systemDirectory ~ "SoundHandle.dnh");
+	StartScript(se);
+}
+
+function LoadCommonData {
+	if (!LoadCommonDataAreaA2("Spell History", saveDataDirectory ~ "spellhistory.dat")) {
+		CreateCommonDataArea("Spell History");
+	}
+
+	if (!LoadCommonDataAreaA2("Options", saveDataDirectory ~ "options.dat")) {
+		CreateCommonDataArea("Options");
+	}
+
+	CreateCommonDataArea("Stage Data");
+}
+
+task GridScroll(obj) {
+	let a = 0;
+
+	while(!Obj_IsDeleted(obj)) {
+		ObjSprite2D_SetSourceRect(obj, a, a, 640 + a, 480 + a);
+		a++;
+		yield;
+	}
+}
+
+task StartTask() {
+	objMenuBG = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objMenuBG, imgDirectory ~ "title/title00.png");
+	ObjSprite2D_SetSourceRect(objMenuBG, 0, 0, 640, 480);
+	ObjSprite2D_SetDestRect(objMenuBG, 0, 0, 640, 480);
+	Obj_SetRenderPriority(objMenuBG, 0.01);
+
+	objMenuBG2 = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objMenuBG2, imgDirectory ~ "title/title01.png");
+	ObjSprite2D_SetDestRect(objMenuBG2, 0, 0, 640, 480);
+	Obj_SetRenderPriority(objMenuBG2, 0.01);
+	ObjRender_SetBlendType(objMenuBG2, BLEND_SUBTRACT);
+	ObjRender_SetAlpha(objMenuBG2, 0);
+
+	let objLoadBG = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objLoadBG, imgDirectory ~ "title/title01.png");
+	ObjSprite2D_SetDestRect(objLoadBG, 0, 0, 640, 480);
+	ObjRender_SetAlpha(objLoadBG, 64);
+	ObjRender_SetBlendType(objLoadBG, BLEND_ADD_ARGB);
+	Obj_SetRenderPriority(objLoadBG, 0.01);
+
+	let objLoadText = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objLoadText, imgDirectory ~ "title/load.png");
+	ObjSprite2D_SetSourceRect(objLoadText, 0, 0, 640, 250);
+	ObjSprite2D_SetDestRect(objLoadText, 0, 115, 640, 365);
+	Obj_SetRenderPriority(objLoadText, 0.01);
+
+	let objLoadEff = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objLoadEff, imgDirectory ~ "title/load_eff.png");
+	ObjSprite2D_SetSourceRect(objLoadEff, 0, 0, 256, 64);
+	ObjSprite2D_SetDestRect(objLoadEff, 384, 416, 640, 480);
+	Obj_SetRenderPriority(objLoadEff, 0.01);
+	
+	GridScroll(objLoadBG);
+	GridScroll(objMenuBG2);
+
+	wait(15);
+	LoadResources;
+
+	ascent(b in 0 .. 60) {
+		ObjRender_SetAlpha(objLoadBG, 64 * (60 - b)/60);
+		ObjRender_SetAlpha(objLoadText, 255 * (60 - b * 2)/60);
+		ObjRender_SetAlpha(objLoadEff, 255 * (60 - b * 2)/60);
+		ObjRender_SetAlpha(objMenuBG2, 255 * b/60);
+		yield;
+	}
+	
+	Obj_Delete(objLoadText);
+	Obj_Delete(objLoadEff);
+	Obj_Delete(objLoadBG);
+	ObjRender_SetAlpha(objMenuBG2, 255);
+
+	StartBGM(0);
+	Main(0, false);
+}
+
+task MenuBG() {
+	objMenuBG = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objMenuBG, imgDirectory ~ "title/title00.png");
+	ObjSprite2D_SetSourceRect(objMenuBG, 0, 0, 640, 480);
+	ObjSprite2D_SetDestRect(objMenuBG, 0, 0, 640, 480);
+	Obj_SetRenderPriority(objMenuBG, 0.01);
+
+	objMenuBG2 = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objMenuBG2, imgDirectory ~ "title/title01.png");
+	ObjSprite2D_SetDestRect(objMenuBG2, 0, 0, 640, 480);
+	Obj_SetRenderPriority(objMenuBG2, 0.01);
+	ObjRender_SetBlendType(objMenuBG2, BLEND_SUBTRACT);
+
+	GridScroll(objMenuBG2);
+
+	StartBGM(0);
+}

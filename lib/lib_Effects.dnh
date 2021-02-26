@@ -1,0 +1,56 @@
+
+function StartBGM(index) {
+	NotifyEventAll(EV_USER_PACKAGE, index);
+}
+
+function StopBGM(type) {
+	NotifyEventAll(EV_USER_PACKAGE + 1, type);
+}
+
+function PlaySound(index) {
+	NotifyEventAll(EV_USER_PACKAGE + 2, index, 100, 0);
+}
+
+function PlaySound(index, volume, panrate) {
+	NotifyEventAll(EV_USER_PACKAGE + 2, index, volume, panrate);
+}
+
+function BossLifebar(obj) {
+	NotifyEventAll(EV_USER_SYSTEM, 0, obj);
+}
+
+function CircleLifebar(obj, radius, maxLife) {
+	NotifyEventAll(EV_USER_SYSTEM, 1, obj, radius, maxLife);
+}
+
+function DeleteEffect(x, y, r, g, b) {
+	NotifyEventAll(EV_USER_SYSTEM + 1, 0, x, y, r, g, b);
+}
+
+function DeleteEffectShot(x, y, obj) {
+	NotifyEventAll(EV_USER_SYSTEM + 1, 1, x, y, obj);
+}
+
+function Cutin1(path, left, top, right, down, width, height, angleIn, angleOut) {
+	NotifyEventAll(EV_USER_SYSTEM + 2, path, left, top, right, down, width, height, angleIn, angleOut);
+}
+
+function SpellName1(name, r, g, b, obj) {
+	NotifyEventAll(EV_USER_SYSTEM + 3, name, r, g, b, obj);
+}
+
+function Concentration1(x, y, duration, duration2, density, radius, radius2, angle, blend, r, g, b, graphic) {
+	NotifyEventAll(EV_USER_SYSTEM + 4, 0, x, y, duration, duration2, density, radius, radius2, angle, blend, r, g, b, graphic);
+}
+
+function Concentration2(x, y, duration, duration2, duration3, density, radius, angle, angle2, size, blend, r, g, b) {
+	NotifyEventAll(EV_USER_SYSTEM + 4, 1, x, y, duration, duration2, duration3, density, radius, angle, angle2, size, blend, r, g, b);
+}
+
+function Explosion1(x, y, duration, density, speedMin, speedMax, radius, blend, r, g, b, graphic) {
+	NotifyEventAll(EV_USER_SYSTEM + 5, x, y, duration, density, speedMin, speedMax, radius, blend, r, g, b, graphic);
+}
+
+function PreExplosion1(x, y, duration, duration2, density, speedMin, speedMax, blend, r, g, b, graphic) {
+	NotifyEventAll(EV_USER_SYSTEM + 6, x, y, duration, duration2, density, speedMin, speedMax, blend, r, g, b, graphic);
+}

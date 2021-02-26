@@ -1,0 +1,4 @@
+
+let SE_CURSOR0 = 0;
+let SE_CURSOR1 = 1;
+let SE_CURSOR2 = 2;

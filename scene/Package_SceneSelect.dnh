@@ -1,0 +1,232 @@
+task SceneSelect() {
+	let objSubMenuTitle = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objSubMenuTitle, imgDirectory ~ "title/submenutitle.png");
+	ObjSprite2D_SetSourceRect(objSubMenuTitle, 0, 1536, 1024, 2048);
+	ObjSprite2D_SetDestRect(objSubMenuTitle, -128, -128, 128, 0);
+	Obj_SetRenderPriority(objSubMenuTitle, 0.04);
+	ObjRender_SetPosition(objSubMenuTitle, 480, 150, 0);
+
+	let objPrevDay = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objPrevDay, imgDirectory ~ "title/daytitle.png");
+	ObjSprite2D_SetSourceRect(objPrevDay, 256, 256, 320, 320);
+	ObjSprite2D_SetDestRect(objPrevDay, 0, 32, 64, 96);
+	Obj_SetRenderPriority(objPrevDay, 0.04);
+
+	let objNextDay = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objNextDay, imgDirectory ~ "title/daytitle.png");
+	ObjSprite2D_SetSourceRect(objNextDay, 320, 256, 384, 320);
+	ObjSprite2D_SetDestRect(objNextDay, 192, 32, 256, 96);
+	Obj_SetRenderPriority(objNextDay, 0.04);
+
+	let dayIndex = 0;
+	let dayDisplay = dayIndex * 5;
+
+	let selectIndex = 0;
+	let close = false;
+
+	let dayCount = 10;
+	let sceneCount = [3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+	task DayTitle(index) {
+		let objDayTitle = ObjPrim_Create(OBJ_SPRITE_2D);
+		ObjPrim_SetTexture(objDayTitle, imgDirectory ~ "title/daytitle.png");
+		ObjSprite2D_SetSourceRect(objDayTitle, (index % 4) * 128, floor(index / 4) * 128, (index % 4 + 1) * 128, floor(index / 4 + 1) * 128);
+		ObjSprite2D_SetDestRect(objDayTitle, -64, -64, 64, 64);
+		Obj_SetRenderPriority(objDayTitle, 0.04);
+		ObjRender_SetPosition(objDayTitle, 128, 64, 0);
+		
+		ascent(a in 0 .. 15) {
+			ObjRender_SetAlpha(objDayTitle, 255 * a / 15);
+			Obj_SetVisible(objDayTitle, absolute(dayDisplay - index * 5) < 5);
+			yield;
+		}
+		ObjRender_SetAlpha(objDayTitle, 255);
+
+		loop {
+			if (selectIndex == 0) {
+				ObjRender_SetColor(objDayTitle, 255, 255, 100);
+			} else {
+				ObjRender_SetColor(objDayTitle, 255, 255, 255);
+			}
+
+			ObjRender_SetAngleY(objDayTitle, (dayDisplay - index * 5) * 18);
+			ObjRender_SetPosition(objDayTitle, 128 - sin((dayDisplay - index * 5) * 18) * 48, 64, 0);
+			Obj_SetVisible(objDayTitle, absolute(dayDisplay - index * 5) < 5);
+
+			if (close) {
+				descent(a in 0 .. 15) {
+					ObjRender_SetAlpha(objDayTitle, 255 * a/15);
+					yield;
+				}
+
+				Obj_Delete(objDayTitle);
+				return;
+			}
+			yield;
+		}
+	}
+
+	task SceneOption(day, index) {
+		let obj = ObjText_Create;
+		ObjText_SetText(obj, "Scene " ~ IntToString(day + 1) ~ "-" ~ IntToString(index + 1));
+		ObjText_SetFontSize(obj, 20);
+		ObjText_SetFontBold(obj, true);
+		ObjText_SetFontColorTop(obj, 255, 255, 255);
+		ObjText_SetFontColorBottom(obj, 100, 100, 100);
+		ObjText_SetFontType(obj, "MonoSpatial");
+		ObjText_SetFontBorderWidth(obj, 1);
+		ObjText_SetFontBorderType(obj, BORDER_FULL);
+		ObjText_SetFontBorderColor(obj, 0, 0, 0);
+		Obj_SetRenderPriority(obj, 0.03);
+
+		ascent(a in 0 .. 15) {
+			ObjRender_SetAlpha(obj, 255 * a / 15);
+			ObjRender_SetPosition(obj, 74 - sin((dayDisplay - day * 5) * 18) * 48, 128 + index * 24, 0);
+			Obj_SetVisible(obj, absolute(dayDisplay - day * 5) < 5);
+			yield;
+		}
+		ObjRender_SetAlpha(obj, 255);
+
+		loop {
+			ObjRender_SetPosition(obj, 74 - sin((dayDisplay - day * 5) * 18) * 48, 128 + index * 24, 0);
+			ObjRender_SetAngleY(obj, (dayDisplay - day * 5) * 18);
+			Obj_SetVisible(obj, absolute(dayDisplay - day * 5) < 5);
+
+			if (selectIndex == index + 1) {
+				ObjRender_SetColor(obj, 255, 255, 100);
+			} else {
+				ObjRender_SetColor(obj, 255, 255, 255);
+			}
+
+			if (close) {
+				descent(a in 0 .. 15) {
+					ObjRender_SetAlpha(obj, 255 * a/15);
+					yield;
+				}
+
+				Obj_Delete(obj);
+				return;
+			}
+			yield;
+		}
+	}
+
+	Obj_SetVisible(objPrevDay, dayIndex > 0);
+	Obj_SetVisible(objNextDay, dayIndex + 1 < dayCount);
+
+	ascent(a in 0 .. dayCount) {
+		DayTitle(a);
+	}
+
+	ascent(a in 0 .. dayCount) {
+		ascent(b in 0 .. sceneCount[a]) {
+			SceneOption(a, b);
+		}
+	}
+
+	ascent(a in 0 .. 15) {
+		ObjRender_SetAlpha(objSubMenuTitle, 255 * a / 15);
+		ObjRender_SetAlpha(objPrevDay, 255 * a / 15);
+		ObjRender_SetAlpha(objNextDay, 255 * a / 15);
+		yield;
+	}
+
+	ObjRender_SetAlpha(objSubMenuTitle, 255);
+
+	let frameKeyHoldDay = 0;
+	let frameKeyHoldScene = 0;
+
+	loop {
+		if (GetVirtualKeyState(VK_OK) == KEY_PUSH && selectIndex > 0) {
+			SetAreaCommonData("Stage Data", "day", dayIndex + 1);
+			SetAreaCommonData("Stage Data", "scene", selectIndex);
+			StartGame(true);
+			break;
+		}
+
+		if (GetVirtualKeyState(VK_RIGHT) == KEY_PUSH) {
+			if (dayIndex + 1 < dayCount) {
+				PlaySound(SE_CURSOR0);
+				dayIndex++;
+			}
+		} else if (GetVirtualKeyState(VK_LEFT) == KEY_PUSH) {
+			if (dayIndex > 0) {
+				PlaySound(SE_CURSOR0);
+				dayIndex--;
+			}
+		} else if(GetVirtualKeyState(VK_RIGHT) == KEY_HOLD && dayIndex + 1 < dayCount) {
+			frameKeyHoldDay++;
+			if(frameKeyHoldDay == 30 || (frameKeyHoldDay > 30 && (frameKeyHoldDay % 5 == 0))) {
+				PlaySound(SE_CURSOR0);
+				dayIndex++;
+			}
+		} else if(GetVirtualKeyState(VK_LEFT) == KEY_HOLD && dayIndex > 0) {
+			frameKeyHoldDay++;
+			if(frameKeyHoldDay == 30 || (frameKeyHoldDay > 30 && (frameKeyHoldDay % 5 == 0))) {
+				PlaySound(SE_CURSOR0);
+				dayIndex--;
+			}
+		} else {
+			frameKeyHoldDay = 0;
+		}
+
+		if (GetVirtualKeyState(VK_DOWN) == KEY_PUSH) {
+			PlaySound(SE_CURSOR0);
+			selectIndex++;
+		} else if (GetVirtualKeyState(VK_UP) == KEY_PUSH) {
+			PlaySound(SE_CURSOR0);
+			selectIndex--;
+		} else if(GetVirtualKeyState(VK_DOWN) == KEY_HOLD) {
+			frameKeyHoldScene++;
+			if(frameKeyHoldScene == 30 || (frameKeyHoldScene > 30 && (frameKeyHoldScene % 5 == 0))) {
+				PlaySound(SE_CURSOR0);
+				selectIndex++;
+			}
+		} else if(GetVirtualKeyState(VK_UP) == KEY_HOLD) {
+			frameKeyHoldScene++;
+			if(frameKeyHoldScene == 30 || (frameKeyHoldScene > 30 && (frameKeyHoldScene % 5 == 0))) {
+				PlaySound(SE_CURSOR0);
+				selectIndex--;
+			}
+		} else {
+			frameKeyHoldScene = 0;
+		}
+
+		if (selectIndex < 0) {
+			selectIndex = sceneCount[dayIndex];
+		} else if (selectIndex > sceneCount[dayIndex]) {
+			selectIndex = 0;
+		}
+
+		Obj_SetVisible(objPrevDay, dayIndex > 0);
+		Obj_SetVisible(objNextDay, dayIndex + 1 < dayCount);
+
+		if (dayDisplay < dayIndex * 5) {
+			dayDisplay++;
+		} else if (dayDisplay > dayIndex * 5) {
+			dayDisplay--;
+		}
+
+		if (GetVirtualKeyState(VK_CANCEL) == KEY_PUSH) {
+			PlaySound(SE_CURSOR2);
+			Main(0, true);
+			break;
+		}
+
+		yield;
+	}
+
+	close = true;
+
+	descent(a in 0 .. 15) {
+		ObjRender_SetAlpha(objSubMenuTitle, 255 * a/15);
+		ObjRender_SetY(objSubMenuTitle, a * 10);
+		ObjRender_SetAlpha(objPrevDay, 255 * a/15);
+		ObjRender_SetAlpha(objNextDay, 255 * a/15);
+		yield;
+	}
+
+	Obj_Delete(objSubMenuTitle);
+	Obj_Delete(objPrevDay);
+	Obj_Delete(objNextDay);
+}

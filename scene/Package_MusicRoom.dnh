@@ -1,0 +1,209 @@
+#include "./Package_MusicRoomComments.dnh"
+
+task MusicRoom() {
+	StopBGM(1);
+
+	let objSubMenuTitle = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objSubMenuTitle, imgDirectory ~ "title/submenutitle.png");
+	ObjSprite2D_SetSourceRect(objSubMenuTitle, 0, 512, 1024, 1024);
+	ObjSprite2D_SetDestRect(objSubMenuTitle, -128, -128, 128, 0);
+	Obj_SetRenderPriority(objSubMenuTitle, 0.04);
+	ObjRender_SetPosition(objSubMenuTitle, 480, 150, 0);
+
+	let selectIndex = 0;
+	let close = false;
+
+	ascent(a in 0 .. 15) {
+		ObjRender_SetAlpha(objSubMenuTitle, 255 * a/15);
+		yield;
+	}
+
+	ObjRender_SetAlpha(objSubMenuTitle, 255);
+
+	task MusicChoice(index) {
+		let obj = ObjText_Create;
+		ObjText_SetText(obj, musicList[index]);
+		ObjText_SetFontSize(obj, 18);
+		ObjText_SetFontBold(obj, true);
+		ObjText_SetFontColorTop(obj, 255, 255, 255);
+		ObjText_SetFontColorBottom(obj, 100, 100, 100);
+		ObjText_SetFontType(obj, "MonoSpatial");
+		ObjText_SetFontBorderWidth(obj, 1);
+		ObjText_SetFontBorderType(obj, BORDER_FULL);
+		ObjText_SetFontBorderColor(obj, 0, 0, 0);
+		Obj_SetRenderPriority(obj, 0.03);
+		ObjRender_SetX(obj, 24);
+
+		let frame = 0;
+		let targetY = 0;
+		let alpha = 0;
+
+		while(!close) {
+			if (selectIndex == index && frame > 30) {
+				ObjRender_SetColor(obj, 255, 255, 100);
+			} else {
+				ObjRender_SetColor(obj, 255, 255, 255);
+			}
+
+			if (absolute(selectIndex * 20 - targetY) > 30) {
+				if (targetY < selectIndex * 20) {
+					targetY += 45;
+				} else if (targetY > selectIndex * 20) {
+					targetY -= 45;
+				}
+			}
+
+			if (targetY < selectIndex * 20) {
+				targetY += 5;
+			} else if (targetY > selectIndex * 20) {
+				targetY -= 5;
+			}
+
+			let y = 148 + index * 20 - targetY;
+			alpha = 255 * min((y + ObjText_GetTotalHeight(obj))/60, min((480 - y)/60, 1)) * min(frame/30, 1);
+
+			ObjRender_SetY(obj, y);
+			ObjRender_SetAlpha(obj, alpha);
+
+			frame++;
+			yield;
+		}
+
+		descent(a in 0 .. 30) {
+			ObjRender_SetX(obj, a * 10 - 276);
+			ObjRender_SetAlpha(obj, alpha * a/30);
+			yield;
+		}
+
+		Obj_Delete(obj);
+	}
+
+	let objBox = ObjPrim_Create(OBJ_PRIMITIVE_2D);
+	ObjPrim_SetPrimitiveType(objBox, PRIMITIVE_LINELIST);
+	ObjPrim_SetVertexCount(objBox, 10);
+	ObjPrim_SetVertexPosition(objBox, 0, 77, 178, 0);
+	ObjPrim_SetVertexPosition(objBox, 1, 636, 178, 0);
+	ObjPrim_SetVertexPosition(objBox, 2, 78, 200, 0);
+	ObjPrim_SetVertexPosition(objBox, 3, 636, 200, 0);
+	ObjPrim_SetVertexPosition(objBox, 4, 78, 476, 0);
+	ObjPrim_SetVertexPosition(objBox, 5, 636, 476, 0);
+	ObjPrim_SetVertexPosition(objBox, 6, 78, 178, 0);
+	ObjPrim_SetVertexPosition(objBox, 7, 78, 476, 0);
+	ObjPrim_SetVertexPosition(objBox, 8, 636, 178, 0);
+	ObjPrim_SetVertexPosition(objBox, 9, 636, 476, 0);
+	Obj_SetRenderPriority(objBox, 0.05);
+
+	let objBoxBack = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(objBoxBack, imgDirectory ~ "title/box.png");
+	ObjSprite2D_SetSourceRect(objBoxBack, 0, 0, 1, 1);
+	ObjSprite2D_SetDestRect(objBoxBack, 78, 178, 636, 476);
+	Obj_SetRenderPriority(objBoxBack, 0.04);
+	ObjRender_SetColor(objBoxBack, 0, 0, 0);
+
+	let objComment = ObjText_Create;
+	ObjText_SetFontSize(objComment, 16);
+	ObjText_SetFontBold(objComment, true);
+	ObjText_SetFontColorTop(objComment, 255, 255, 255);
+	ObjText_SetFontColorBottom(objComment, 150, 150, 150);
+	ObjText_SetFontType(objComment, "MonoSpatial");
+	ObjText_SetFontBorderWidth(objComment, 1);
+	ObjText_SetFontBorderType(objComment, BORDER_FULL);
+	ObjText_SetFontBorderColor(objComment, 0, 0, 0);
+	Obj_SetRenderPriority(objComment, 0.05);
+	ObjRender_SetPosition(objComment, 80, 180, 0);
+
+	task openComment {
+		ascent(a in 0 .. 10) {
+			ObjRender_SetAlpha(objComment, 255 * a/10);
+			yield;
+		}
+		
+		ObjRender_SetAlpha(objComment, 255);
+	}
+
+	let musicLength = length(musicList);
+
+	ascent(a in 0 .. musicLength) {
+		MusicChoice(a);
+	}
+
+	ascent(a in 0 .. 30) {
+		ObjRender_SetAlpha(objBox, 255 * a/30);
+		ObjRender_SetAlpha(objBoxBack, 240 * a/30);
+		yield;
+	}
+	
+	ObjRender_SetAlpha(objBox, 255);
+	ObjRender_SetAlpha(objBoxBack, 240);
+
+	let frameKeyHold = 0;
+	let playing = -1;
+
+	loop {
+		if (GetVirtualKeyState(VK_OK) == KEY_PUSH) {
+			StopBGM(2);
+
+			if (playing == selectIndex) {
+				ObjText_SetText(objComment, "");
+				playing = -1;
+			} else {
+				playing = selectIndex;
+				ObjText_SetText(objComment, musicComments[playing]);
+				openComment;
+				wait(10);
+				StartBGM(playing);
+			}
+		}
+
+		if (GetVirtualKeyState(VK_UP) == KEY_PUSH) {
+			PlaySound(SE_CURSOR0);
+			selectIndex--;
+		} else if(GetVirtualKeyState(VK_DOWN) == KEY_PUSH) {
+			PlaySound(SE_CURSOR0);
+			selectIndex++;
+		} else if(GetVirtualKeyState(VK_UP) == KEY_HOLD) {
+			frameKeyHold++;
+			if(frameKeyHold == 20 || (frameKeyHold > 20 && (frameKeyHold % 4 == 0))) {
+				PlaySound(SE_CURSOR0);
+				selectIndex--;
+			}
+		} else if(GetVirtualKeyState(VK_DOWN) == KEY_HOLD) {
+			frameKeyHold++;
+			if(frameKeyHold == 20 || (frameKeyHold > 20 && (frameKeyHold % 4 == 0))) {
+				PlaySound(SE_CURSOR0);
+				selectIndex++;
+			}
+		} else {
+			frameKeyHold = 0;
+		}
+
+		if (selectIndex < 0) {
+			selectIndex = musicLength - 1;
+		} else {
+			selectIndex %= musicLength;
+		}
+		
+		if (GetVirtualKeyState(VK_CANCEL) == KEY_PUSH) {
+			PlaySound(SE_CURSOR2);
+			StartBGM(0);
+			Main(2, true);
+			break;
+		}
+
+		yield;
+	}
+
+	close = true;
+
+	descent(a in 0 .. 15) {
+		ObjRender_SetAlpha(objSubMenuTitle, 255 * a/15);
+		ObjRender_SetAlpha(objBox, 255 * a/15);
+		ObjRender_SetAlpha(objBoxBack, 240 * a/15);
+		ObjRender_SetAlpha(objComment, 255 * a/15);
+		ObjRender_SetY(objSubMenuTitle, a * 10);
+		yield;
+	}
+
+	Obj_Delete(objComment);
+	Obj_Delete(objSubMenuTitle);
+}

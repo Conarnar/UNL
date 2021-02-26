@@ -1,0 +1,154 @@
+
+#include "../../lib/include/include_Single.dnh"
+
+@Initialize {
+	Init;
+	Main;
+}
+
+@Event {
+	alternative(GetEventType)
+	case(EV_REQUEST_LIFE) {
+		SetScriptResult(2000);
+	}
+	case(EV_REQUEST_TIMER) {
+		SetScriptResult(60);
+	}
+	case(EV_REQUEST_SPELL_SCORE) {
+		SetScriptResult(6000000);
+	}
+}
+
+@MainLoop {
+	SetBossHitbox(64, 24);
+	yield;
+}
+
+@Finalize {
+}
+
+task Main {
+	EndTask;
+	ObjEnemy_SetDamageRate(objBoss, 100, 100);
+	ObjMove_SetDestAtFrame(objBoss, 320, 120, 60);
+
+	ObjPrim_SetTexture(objBoss, imgDirectory ~ "placeholder/nar.png");
+	ObjSprite2D_SetSourceRect(objBoss, 0, 0, 100, 100);
+	ObjSprite2D_SetDestCenter(objBoss);
+
+	wait(60);
+	let objScene = GetEnemyBossSceneObjectID;
+	ObjEnemyBossScene_StartSpell(objScene);
+	ObjEnemyBossScene_SetSpellTimer(objScene, 3600);
+	SpellName1("Afterimage \"Mind Film\"", 10, 255, 10, objBoss);
+	Cutin1("thing.png", 0, 0, 100, 100, 100, 100, 0, -90);
+	BossLifebar(objBoss);
+	wait(120);
+	shoot;
+}
+
+function move {
+	let destX = GetCenterX + rand(-120, 120);
+	let destY = rand(120, 150);
+	let maxd = 60;
+
+	if ((destX - GetBossX)^2 + (destY - GetBossY)^2 > maxd^2) {
+		let angle = atan2(destY - GetBossY, destX - GetBossX);
+		destX = GetBossX + cos(angle) * maxd;
+		destY = GetBossY + sin(angle) * maxd;
+	}
+
+	ObjMove_SetDestAtWeight(objBoss, destX, destY, 20, 4);
+	return [destX, destY];
+}
+
+task shoot {
+	loop {
+		Concentration1(ObjMove_GetX(objBoss), ObjMove_GetY(objBoss), 30, 30, 2, 120, 120, 2, BLEND_ADD_ARGB, 0, 255, 0, 1);
+
+		loop(2 + GetDifficulty) {
+			let start = rand(0, 360);
+			let shot = POINTER[floor(rand(0, 16))];
+
+			ascent(a in 0 .. 30) {
+				CreateShotA1(GetBossX, GetBossY, 3 + GetDifficulty/2, start + a * 12, shot, 10);
+			}
+
+			wait(15);
+		}
+
+		rip;
+		move;
+
+		wait(180 - GetStage * 10);
+
+		let start = GetAngleToPlayer(objBoss);
+
+		Concentration1(ObjMove_GetX(objBoss), ObjMove_GetY(objBoss), 30, 30, 2, 120, 120, 2, BLEND_ADD_ARGB, 0, 255, 0, 1);
+		ascent(b in 0 .. 10) {
+			let shot = POINTER[floor(rand(0, 16))];
+
+			ascent(a in 0 .. 3 + GetDifficulty * 2) {
+				CreateShotA1(GetBossX, GetBossY, 2 + a/2, start + b * 15 + 7.5, shot, 10);
+				CreateShotA1(GetBossX, GetBossY, 2 + a/2, start - b * 15 - 7.5, shot, 10);
+			}
+
+			wait(6);
+		}
+
+		wait(10);
+
+		rip;
+		move;
+
+		wait(180);
+	}
+}
+
+task rip {
+	CreateRenderTarget("everything");
+	RenderToTextureA1("everything", 20, 78, true);
+	let obj2 = ObjPrim_Create(OBJ_SPRITE_2D);
+	ObjPrim_SetTexture(obj2, "everything");
+	ObjSprite2D_SetSourceRect(obj2, 0, 0, GetStgFrameWidth, GetStgFrameHeight);
+	ObjSprite2D_SetDestRect(obj2, 0, 0, GetStgFrameWidth, GetStgFrameHeight);
+	Obj_SetRenderPriority(obj2, 0.79);
+	delet(obj2);
+
+	let shots = GetShotIdInCircleA2(GetCenterX, GetCenterY, 800, TARGET_ENEMY);
+
+	if (length(shots) > 0) {
+		ascent(a in 0 .. length(shots)) {
+			let ooo = shots[a];
+			let angle = ObjMove_GetAngle(ooo) + rand(-90, 90);
+			let o22 = CreateShotA1(ObjMove_GetX(ooo), ObjMove_GetY(ooo), 0, angle, ObjShot_GetImageID(ooo), 0);
+			let aeee = ObjMove_GetAngle(ooo) + Obj_GetValueD(ooo, "mindfilm", 0) - angle;
+			ObjRender_SetAngleZ(o22, aeee);
+			Obj_SetValue(o22, "mindfilm", aeee);
+			ObjMove_AddPatternA2(o22, 30, NO_CHANGE, NO_CHANGE, 0.01, rand(-0.1, 0.1), 3);
+		}
+	}
+
+	descent(a in 0 .. 20) {
+		ObjRender_SetAlpha(obj2, 255 * a/20);
+		yield;
+	}
+
+	Obj_Delete(obj2);
+}
+
+task delet(obj) {
+	while(IsBossAlive && !Obj_IsDeleted(obj)) {
+		yield;
+	}
+
+	Obj_Delete(obj);
+}
+
+function GetDifficulty() {
+	return 2;
+}
+
+function GetStage() {
+	return 5;
+}

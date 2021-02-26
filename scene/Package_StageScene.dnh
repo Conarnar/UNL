@@ -1,0 +1,151 @@
+task StartGame(load) {
+	StartGame(load, -1);
+}
+
+task StartGame(load, replayIndex) {
+	let objLoad = ID_INVALID;
+	let objLoadEff = ID_INVALID;
+	let objTransition = ID_INVALID;
+
+	if (load) {
+		StopBGM(2);
+
+		objLoad = ObjPrim_Create(OBJ_PRIMITIVE_2D);
+		ObjPrim_SetPrimitiveType(objLoad, PRIMITIVE_TRIANGLELIST);
+		ObjPrim_SetVertexCount(objLoad, 288);
+		ObjPrim_SetTexture(objLoad, imgDirectory ~ "placeholder/load.png");
+		Obj_SetRenderPriority(objLoad, 0.95);
+
+		ascent(a in 0 .. 8) {
+			ascent(b in 0 .. 6) {
+				TransitionEffect(objLoad, (a * 6 + b) * 6, a, b);
+			}
+		}
+
+		objLoadEff = ObjPrim_Create(OBJ_SPRITE_2D);
+		ObjPrim_SetTexture(objLoadEff, imgDirectory ~ "title/load_eff.png");
+		ObjSprite2D_SetSourceRect(objLoadEff, 0, 0, 256, 64);
+		ObjSprite2D_SetDestRect(objLoadEff, 384, 416, 640, 480);
+		Obj_SetRenderPriority(objLoadEff, 0.96);
+
+		wait(60);
+
+		Obj_Delete(objMenuBG);
+		Obj_Delete(objMenuBG2);
+		objMenuBG = ID_INVALID;
+		objMenuBG2 = ID_INVALID;
+	} else {
+		objTransition = ObjPrim_Create(OBJ_SPRITE_2D);
+		ObjPrim_SetTexture(objTransition, GetTransitionRenderTargetName());
+		ObjSprite2D_SetSourceRect(objTransition, 0, 0, 640, 480);
+		ObjSprite2D_SetDestRect(objTransition, 0, 0, 640, 480);
+		Obj_SetRenderPriority(objTransition, 0.95);
+	}
+
+	InitializeStageScene;
+	if (replayIndex > 0) {
+		SetStageReplayFile(GetReplayInfo(replayIndex, REPLAY_FILE_PATH));
+	}
+	SetStageIndex(1);
+	SetStageMainScript(GetCurrentScriptDirectory ~ "../Stage.dnh");
+	SetStagePlayerScript(GetCurrentScriptDirectory ~ "../../player/default_player/Default_Player_Rumia.txt");
+	StartStageScene;
+
+	if (load) {
+		ascent(a in 0 .. 8) {
+			ascent(b in 0 .. 6) {
+				TransitionEnd(objLoad, (a * 6 + b) * 6, a, b);
+			}
+		}
+		Obj_Delete(objLoadEff);
+	} else {
+		descent(a in 0 .. 30) {
+			ObjRender_SetAlpha(objTransition, 255 * a / 30);
+			yield;
+		}
+		Obj_Delete(objTransition);
+	}
+
+	loop {
+		if (GetVirtualKeyState(VK_PAUSE) == KEY_PUSH) {
+			let resPause = RunPauseScene();
+			
+			alternative(resPause)
+			case(RESULT_RETRY) {
+				TerminateStageScene;
+				StartGame(false, replayIndex);
+				return;
+			} case(RESULT_END) {
+				TerminateStageScene;
+			}
+		}
+
+		if (GetStageSceneState == STAGE_STATE_FINISHED) {
+			alternative(GetStageSceneResult)
+			case(STAGE_RESULT_CLEARED) {
+				RunWinScene();
+				break;
+			} case(STAGE_RESULT_PLAYER_DOWN) {
+				RunLoseScene();
+				break;
+			} case(STAGE_RESULT_BREAK_OFF) {
+				if (IsReplay) {
+					MenuBG();
+					ReplayMenu();
+				} else {
+					MenuBG();
+					SceneSelect();
+				}
+				
+				break;
+			}
+		}
+
+		yield;
+	}
+}
+
+task TransitionEffect(obj, vertexStart, x, y) {
+	wait((x + y) * 2);
+
+	let vertices = [0, 90, -90, 180, 90, -90];
+	let start = rand(0, 360);
+
+	ascent(a in 0 .. 31) {
+		ascent(b in 0 .. 6) {
+			let vx = x * 80 + 40 + cos(start + a * 5 + vertices[b]) * a * 3;
+			let vy = y * 80 + 40 + sin(start + a * 5 + vertices[b]) * a * 3;
+
+			ObjPrim_SetVertexPosition(obj, vertexStart + b, vx, vy, 0);
+			ObjPrim_SetVertexUVT(obj, vertexStart + b, vx, vy);
+			ObjPrim_SetVertexAlpha(obj, vertexStart + b, 255 * a / 30);
+		}
+
+		a++;
+		yield;
+	}
+}
+
+task TransitionEnd(obj, vertexStart, x, y) {
+	wait((x + y) * 2);
+
+	let vertices = [0, 90, -90, 180, 90, -90];
+	let start = rand(0, 360);
+	descent(a in 0 .. 30) {
+		ascent(b in 0 .. 6) {
+			let vx = x * 80 + 40 + cos(start - a * 5 + vertices[b]) * a * 3;
+			let vy = y * 80 + 40 + sin(start - a * 5 + vertices[b]) * a * 3;
+
+			ObjPrim_SetVertexPosition(obj, vertexStart + b, vx, vy, 0);
+			ObjPrim_SetVertexUVT(obj, vertexStart + b, vx, vy);
+			ObjPrim_SetVertexAlpha(obj, vertexStart + b, 255 * a / 30);
+		}
+
+		a++;
+		yield;
+	}
+
+	if (x == 7 && y == 5) {
+		Obj_Delete(obj);
+	}
+}

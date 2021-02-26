@@ -1,0 +1,76 @@
+let RED = 0;
+let ORANGE = 1;
+let YELLOW = 2;
+let LIME = 3;
+let OLIVE = 4;
+let GREEN = 5;
+let TEAL = 6;
+let CYAN = 7;
+let AZURE = 8;
+let NAVY = 9;
+let BLUE = 10;
+let INDIGO = 11;
+let PURPLE = 12;
+let PINK = 13;
+let MAGENTA = 14;
+let GRAY = 15;
+
+let CIRCLE_S = [];
+let STAR_S = [];
+let OVAL = [];
+let CIRCLE_L = [];
+let HEART = [];
+let STAR_L = [];
+let BULLET = [];
+let PELLET = [];
+let DOT = [];
+let MIKO = [];
+let BUBBLE = [];
+let LASER_ST = [];
+let DROP = [];
+let ARROWHEAD = [];
+let COIN = [];
+let BUTTERFLY = [];
+let KUNAI = [];
+let ARROW = [];
+let KNIFE = [];
+let AMULET = [];
+let YINYANG = [];
+let SHURIKEN = [];
+let POINTER = [];
+let FIRE = [];
+let NOTE = [];
+let LASER_CR = [];
+let LIGHTNING = [];
+
+local {
+	ascent(i in 0 .. 16) {
+		CIRCLE_S = CIRCLE_S ~ [i + 16 * 0];
+		STAR_S = STAR_S ~ [i + 16 * 1];
+		OVAL = OVAL ~ [i + 16 * 2];
+		CIRCLE_L = CIRCLE_L ~ [i + 16 * 3];
+		HEART = HEART ~ [i + 16 * 4];
+		STAR_L = STAR_L ~ [i + 16 * 5];
+		BULLET = BULLET ~ [i + 16 * 6];
+		PELLET = PELLET ~ [i + 16 * 7];
+		DOT = DOT ~ [i + 16 * 8];
+		MIKO = MIKO ~ [i + 16 * 9];
+		BUBBLE = BUBBLE ~ [i + 16 * 10];
+		LASER_ST = LASER_ST ~ [i + 16 * 11];
+		DROP = DROP ~ [i + 16 * 12];
+		ARROWHEAD = ARROWHEAD ~ [i + 16 * 13];
+		COIN = COIN ~ [i + 16 * 14];
+		BUTTERFLY = BUTTERFLY ~ [i + 16 * 15];
+		KUNAI = KUNAI ~ [i + 16 * 16];
+		ARROW = ARROW ~ [i + 16 * 17];
+		KNIFE = KNIFE ~ [i + 16 * 18];
+		AMULET = AMULET ~ [i + 16 * 19];
+		YINYANG = YINYANG ~ [i + 16 * 20];
+		SHURIKEN = SHURIKEN ~ [i + 16 * 21];
+		POINTER = POINTER ~ [i + 16 * 22];
+		FIRE = FIRE ~ [i + 16 * 23];
+		NOTE = NOTE ~ [i + 16 * 24];
+		LASER_CR = LASER_CR ~ [i + 16 * 25];
+		LIGHTNING = LIGHTNING ~ [i + 16 * 26];
+	}
+}

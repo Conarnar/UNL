@@ -1,0 +1,16 @@
+let musicList = [
+	"01. Something Unpredictable Rolls This Way",
+	"02. a a a a a",
+	"03.  a a a a a",
+	"A A A A A A ",
+	" A A A A A A"
+	];
+let musicComments = [
+	"Something Unpredictable Rolls This Way[r]
+	Composer: Gizmo the Dragon, Arranged by: Miransu Uwabami[r]
+	Title Theme[r][r]",
+	"02. Placeholder",
+	"03. Placeholder",
+	"04. Placeholder",
+	"05. Placeholder"
+	];
