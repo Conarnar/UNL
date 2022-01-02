@@ -1,15 +1,15 @@
 task OptionsMenu() {
-	let objSubMenuTitle = ObjPrim_Create(OBJ_SPRITE_2D);
+	int objSubMenuTitle = ObjPrim_Create(OBJ_SPRITE_2D);
 	ObjPrim_SetTexture(objSubMenuTitle, imgDirectory ~ "title/submenutitle.png");
 	ObjSprite2D_SetSourceRect(objSubMenuTitle, 0, 1024, 1024, 1536);
 	ObjSprite2D_SetDestRect(objSubMenuTitle, -128, -128, 128, 0);
 	Obj_SetRenderPriority(objSubMenuTitle, 0.04);
 	ObjRender_SetPosition(objSubMenuTitle, 320, 150, 0);
 
-	let selectIndex = 0;
-	let close = false;
+	int selectIndex = 0;
+	bool close = false;
 
-	ascent(a in 0 .. 15) {
+	ascent (int a in 0 .. 15) {
 		ObjRender_SetAlpha(objSubMenuTitle, 255 * a/15);
 		yield;
 	}
@@ -17,7 +17,7 @@ task OptionsMenu() {
 	ObjRender_SetAlpha(objSubMenuTitle, 255);
 
 	task OptionChoice(text, index) {
-		let obj = ObjText_Create;
+		int obj = ObjText_Create;
 		ObjText_SetText(obj, text);
 		ObjText_SetFontSize(obj, 28);
 		ObjText_SetFontBold(obj, true);
@@ -30,7 +30,7 @@ task OptionsMenu() {
 		Obj_SetRenderPriority(obj, 0.03);
 		ObjRender_SetPosition(obj, 64, 148 + index * 30, 0);
 
-		let frame = 0;
+		int frame = 0;
 
 		while(!close) {
 			if (selectIndex == index && frame > 30) {
@@ -39,13 +39,13 @@ task OptionsMenu() {
 				ObjRender_SetColor(obj, 255, 255, 255);
 			}
 
-			ObjRender_SetAlpha(obj, 255 * frame/30);
+			ObjRender_SetAlpha(obj, 255 * frame / 30);
 
 			frame++;
 			yield;
 		}
 
-		descent(a in 0 .. 30) {
+		descent (int a in 0 .. 30) {
 			ObjRender_SetAlpha(obj, 255 * a/30);
 			yield;
 		}
@@ -53,27 +53,27 @@ task OptionsMenu() {
 		Obj_Delete(obj);
 	}
 
-	let optionList = ["Sound Volume", "BGM Volume", "Background Drawing", "Aura Effects", "Player Effects", "Bullet Delete Effects", "Other Effects", "Reset to default"];
+	string[] optionList = ["Sound Volume", "BGM Volume", "Background Drawing", "Aura Effects", "Player Effects", "Bullet Delete Effects", "Other Effects", "Reset to default"];
 	
-	let optionChoiceResult = [
+	string[][] optionChoiceResult = [
 		["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"],
 		["0%", "10%", "20%", "30%", "40%", "50%", "60%", "70%", "80%", "90%", "100%"],
-		["On", "Off"],
-		["On", "Off"],
-		["On", "Off"],
-		["On", "Off"],
-		["On", "Off"]
+		["Off", "On"],
+		["Off", "On"],
+		["Off", "On"],
+		["Off", "On"],
+		["Off", "On"]
 		];
 
-	let defaultOptionChoice = [10, 10, 0, 0, 0, 0, 0];
+	int[] defaultOptionChoice = [10, 10, 1, 1, 1, 1, 1];
 
-	let optionChoiceIndex = [];
+	int[] optionChoiceIndex = [];
 	
-	let optionLength = length(optionList);
-	let optionChoiceLength = length(optionChoiceResult);
+	int optionLength = length(optionList);
+	int optionChoiceLength = length(optionChoiceResult);
 
 	task OptionResult(choices, index) {
-		let obj = ObjText_Create;
+		int obj = ObjText_Create();
 		ObjText_SetFontSize(obj, 28);
 		ObjText_SetFontBold(obj, true);
 		ObjText_SetFontColorTop(obj, 255, 255, 255);
@@ -85,16 +85,16 @@ task OptionsMenu() {
 		Obj_SetRenderPriority(obj, 0.03);
 		ObjRender_SetPosition(obj, 384, 148 + index * 30, 0);
 
-		let a = 0;
+		int a = 0;
 
-		while(!close) {
+		while (!close) {
 			if (selectIndex == index && a > 30) {
 				ObjRender_SetColor(obj, 255, 255, 100);
 			} else {
 				ObjRender_SetColor(obj, 255, 255, 255);
 			}
 
-			ObjRender_SetAlpha(obj, 255 * a/30);
+			ObjRender_SetAlpha(obj, 255 * a / 30);
 
 			ObjText_SetText(obj, choices[optionChoiceIndex[index]]);
 			
@@ -102,28 +102,28 @@ task OptionsMenu() {
 			yield;
 		}
 
-		descent(a in 0 .. 30) {
-			ObjRender_SetAlpha(obj, 255 * a/30);
+		descent (int a in 0 .. 30) {
+			ObjRender_SetAlpha(obj, 255 * a / 30);
 			yield;
 		}
 
 		Obj_Delete(obj);
 	}
 
-	ascent(a in 0 .. optionLength) {
+	ascent (int a in 0 .. optionLength) {
 		OptionChoice(optionList[a], a);
 	}
 
-	ascent(a in 0 .. optionChoiceLength) {
+	ascent (int a in 0 .. optionChoiceLength) {
 		optionChoiceIndex = optionChoiceIndex ~ [GetAreaCommonData("Options", optionList[a], defaultOptionChoice[a])];
 		OptionResult(optionChoiceResult[a], a);
 	}
 
-	let frameKeyHold = 0;
-	let frameKeyHold2 = 0;
+	int frameKeyHold = 0;
+	int frameKeyHold2 = 0;
 
 	loop {
-		let soundPlay = false;
+		bool soundPlay = false;
 
 		if (GetVirtualKeyState(VK_UP) == KEY_PUSH) {
 			soundPlay = true;
@@ -162,18 +162,18 @@ task OptionsMenu() {
 				soundPlay = true;
 				frameKeyHold = 0;
 				optionChoiceIndex[selectIndex] = optionChoiceIndex[selectIndex] - 1;
-			} else if(GetVirtualKeyState(VK_RIGHT) == KEY_PUSH) {
+			} else if (GetVirtualKeyState(VK_RIGHT) == KEY_PUSH) {
 				soundPlay = true;
 				frameKeyHold = 0;
 				optionChoiceIndex[selectIndex] = optionChoiceIndex[selectIndex] + 1;
-			} else if(GetVirtualKeyState(VK_LEFT) == KEY_HOLD) {
+			} else if (GetVirtualKeyState(VK_LEFT) == KEY_HOLD) {
 				frameKeyHold2++;
 				frameKeyHold = 0;
 				if(frameKeyHold2 == 20 || (frameKeyHold2 > 20 && (frameKeyHold2 % 4 == 0))) {
 					soundPlay = true;
 					optionChoiceIndex[selectIndex] = optionChoiceIndex[selectIndex] - 1;
 				}
-			} else if(GetVirtualKeyState(VK_RIGHT) == KEY_HOLD) {
+			} else if (GetVirtualKeyState(VK_RIGHT) == KEY_HOLD) {
 				frameKeyHold2++;
 				frameKeyHold = 0;
 				if(frameKeyHold2 == 20 || (frameKeyHold2 > 20 && (frameKeyHold2 % 4 == 0))) {
@@ -194,7 +194,7 @@ task OptionsMenu() {
 				soundPlay = true;
 				optionChoiceIndex = defaultOptionChoice;
 
-				ascent(a in 0 .. optionChoiceLength) {
+				ascent (int a in 0 .. optionChoiceLength) {
 					SetAreaCommonData("Options", optionList[a], optionChoiceIndex[a]);
 				}
 			}
@@ -221,7 +221,7 @@ task OptionsMenu() {
 
 	close = true;
 
-	descent(a in 0 .. 15) {
+	descent (int a in 0 .. 15) {
 		ObjRender_SetAlpha(objSubMenuTitle, 255 * a/15);
 		ObjRender_SetY(objSubMenuTitle, a * 10);
 		yield;
