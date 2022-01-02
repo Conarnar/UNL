@@ -34,10 +34,10 @@ let playing = -1;
 		}
 
 		playing = next;
-		ObjSound_SetRestartEnable(bgmList[playing], false);
+		ObjSound_SetResumeEnable(bgmList[playing], true);
 		ObjSound_SetVolumeRate(bgmList[playing], GetMusicVolume);
 		ObjSound_Play(bgmList[playing]);
-		ObjSound_SetRestartEnable(bgmList[playing], true);
+		ObjSound_SetResumeEnable(bgmList[playing], false);
 	}
 	case(EV_USER_PACKAGE + 1) {
 		alternative(GetEventArgument(0))
@@ -75,7 +75,7 @@ function LoadBgm(file, lp1, lp2) {
 	ObjSound_SetSoundDivision(bgm, SOUND_BGM);
 	ObjSound_SetLoopEnable(bgm, true);
 	ObjSound_SetLoopSampleCount(bgm, lp1, lp2);
-	ObjSound_SetRestartEnable(bgm, true);
+	ObjSound_SetResumeEnable(bgm, false);
 	return bgm;
 }
 
