@@ -6,14 +6,14 @@
 #include "../lib_Effects.dnh"
 #include "../lib_Directories.dnh"
 
-let objBoss;
+int objBoss;
 
-function Init {
+function Init() {
 	objBoss = ObjEnemy_Create(OBJ_ENEMY_BOSS);
 	ObjEnemy_Regist(objBoss);
 }
 
-function SetBossHitbox(shot, player) {
+function SetBossHitbox(real shot, real player) {
 	if (shot > 0) {
 		ObjEnemy_SetIntersectionCircleToShot(objBoss, GetBossX, GetBossY, shot);
 	}
@@ -23,23 +23,34 @@ function SetBossHitbox(shot, player) {
 	}
 }
 
-task EndTask {
-	while (IsBossAlive) {
+task EndExplosion(int r, int g, int b, graphic) {
+	while (IsBossAlive()) {
 		yield;
 	}
+	
+	real x = GetBossX();
+	real y = GetBossY();
+
+	ascent (int a in 0 .. 60) {
+		PreExplosion1(GetBossX(), GetBossY(), 1, 60, 1, 2, 6, BLEND_ALPHA, r, g, b, graphic);
+		DeleteShotInCircle(TYPE_ALL, TYPE_ITEM, x, y, a * 15);
+		yield;
+	}
+	Explosion1(GetBossX(), GetBossY(), 120, 120, 0, 8, 180, BLEND_ALPHA, r, g, b, graphic);
 	DeleteShotAll(TYPE_ALL, TYPE_ITEM);
+
 	Obj_Delete(objBoss);
 	CloseScript(GetOwnScriptID);
 }
 
-function IsBossAlive {
+function IsBossAlive() {
 	return ObjEnemy_GetInfo(objBoss, INFO_LIFE) > 0;
 }
 
-function GetBossX {
+function GetBossX() {
 	return ObjMove_GetX(objBoss);
 }
 
-function GetBossY {
+function GetBossY() {
 	return ObjMove_GetY(objBoss);
 }

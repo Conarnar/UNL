@@ -28,7 +28,7 @@
 }
 
 task Main {
-	EndTask;
+	EndExplosion(0, 255, 0, 2);
 	ObjEnemy_SetDamageRate(objBoss, 100, 100);
 	ObjMove_SetDestAtFrame(objBoss, 320, 120, 60);
 

@@ -1,0 +1,19 @@
+#include "../lib/lib_Effects.dnh"
+
+@Initialize {
+	SetDefaultBonusItemEnable(false);
+}
+
+@Event{
+	alternative(GetEventType)
+	case (EV_DELETE_SHOT_TO_ITEM) {
+		DeleteEffectShot(GetEventArgument(1)[0], GetEventArgument(1)[1], GetEventArgument(0));
+	}
+}
+
+@MainLoop {
+	yield;
+}
+
+@Finalize {
+}
