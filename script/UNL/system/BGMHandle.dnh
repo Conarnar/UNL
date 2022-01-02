@@ -1,8 +1,8 @@
 
 #include "../lib/lib_Directories.dnh"
 
-let bgmList;
-let playing = -1;
+int[] bgmList;
+int playing = -1;
 
 @Initialize{
 	bgmList = [
@@ -26,9 +26,9 @@ let playing = -1;
 }
 
 @Event {
-	alternative(GetEventType)
+	alternative(GetEventType())
 	case(EV_USER_PACKAGE) {
-		let next = GetEventArgument(0);
+		int next = GetEventArgument(0);
 		if (playing != -1 && playing != next) {
 			ObjSound_Stop(bgmList[playing]);
 		}
@@ -54,7 +54,7 @@ let playing = -1;
 		}
 		case(2) {
 			if (playing != -1) {
-				let bgm = bgmList[playing];
+				int bgm = bgmList[playing];
 
 				FadeStop(bgm);
 			}
@@ -69,25 +69,25 @@ let playing = -1;
 @Finalize {
 }
 
-function LoadBgm(file, lp1, lp2) {
-	let bgm = ObjSound_Create;
+function<int> LoadBgm(string file, int loop1, int loop2) {
+	int bgm = ObjSound_Create();
 	ObjSound_Load(bgm, bgmDirectory ~ file);
 	ObjSound_SetSoundDivision(bgm, SOUND_BGM);
 	ObjSound_SetLoopEnable(bgm, true);
-	ObjSound_SetLoopSampleCount(bgm, lp1, lp2);
+	ObjSound_SetLoopSampleCount(bgm, loop1, loop2);
 	ObjSound_SetResumeEnable(bgm, false);
 	return bgm;
 }
 
-task FadeStop(bgm) {
-	descent(a in 0 .. 10) {
-		ObjSound_SetVolumeRate(bgm, GetMusicVolume * a/10);
+task FadeStop(int bgm) {
+	descent (int a in 0 .. 10) {
+		ObjSound_SetVolumeRate(bgm, GetMusicVolume() * a/10);
 		yield;
 	}
 
 	ObjSound_Stop(bgm);
 }
 
-function GetMusicVolume {
+function<int> GetMusicVolume() {
 	return GetAreaCommonData("Options", "BGM Volume", 10) * 10;
 }
