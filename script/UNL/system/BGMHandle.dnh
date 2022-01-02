@@ -80,7 +80,7 @@ function<int> LoadBgm(string file, int loop1, int loop2) {
 }
 
 task FadeStop(int bgm) {
-	descent (int a in 0 .. 10) {
+	descent (real a in 0 .. 10) {
 		ObjSound_SetVolumeRate(bgm, GetMusicVolume() * a/10);
 		yield;
 	}
