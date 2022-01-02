@@ -30,9 +30,9 @@ task EndExplosion(int r, int g, int b, graphic) {
 	
 	real x = GetBossX();
 	real y = GetBossY();
+	PreExplosion1(x, y, 60, 60, 1, 2, 6, BLEND_ALPHA, r, g, b, graphic);
 
 	ascent (int a in 0 .. 60) {
-		PreExplosion1(GetBossX(), GetBossY(), 1, 60, 1, 2, 6, BLEND_ALPHA, r, g, b, graphic);
 		DeleteShotInCircle(TYPE_ALL, TYPE_ITEM, x, y, a * 15);
 		yield;
 	}
