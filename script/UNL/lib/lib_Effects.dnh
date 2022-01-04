@@ -1,56 +1,64 @@
 
-function StartBGM(index) {
+function StartBGM(int index) {
 	NotifyEventAll(EV_USER_PACKAGE, index);
 }
 
-function StopBGM(type) {
+function StopBGM(int type) {
 	NotifyEventAll(EV_USER_PACKAGE + 1, type);
 }
 
-function PlaySound(index) {
+function PlaySound(int index) {
 	NotifyEventAll(EV_USER_PACKAGE + 2, index, 100, 0);
 }
 
-function PlaySound(index, volume, panrate) {
+function PlaySound(int index, int volume, int panrate) {
 	NotifyEventAll(EV_USER_PACKAGE + 2, index, volume, panrate);
 }
 
-function BossLifebar(obj) {
-	NotifyEventAll(EV_USER_SYSTEM, 0, obj);
+function BossLifebar(int objEnm) {
+	NotifyEventAll(EV_USER_SYSTEM, 0, objEnm);
 }
 
-function CircleLifebar(obj, radius, maxLife) {
-	NotifyEventAll(EV_USER_SYSTEM, 1, obj, radius, maxLife);
+function CircleLifebar(int objEnm, real radius, real maxLife) {
+	NotifyEventAll(EV_USER_SYSTEM, 1, objEnm, radius, maxLife);
 }
 
-function DeleteEffect(x, y, r, g, b) {
+function DeleteEffect(real x, real y, int r, int g, int b) {
 	NotifyEventAll(EV_USER_SYSTEM + 1, 0, x, y, r, g, b);
 }
 
-function DeleteEffectShot(x, y, obj) {
-	NotifyEventAll(EV_USER_SYSTEM + 1, 1, x, y, obj);
+function DeleteEffectShot(real x, real y, int objShot) {
+	NotifyEventAll(EV_USER_SYSTEM + 1, 1, x, y, objShot);
 }
 
-function Cutin1(path, left, top, right, down, width, height, angleIn, angleOut) {
+function Cutin1(string path, int left, int top, int right, int down, int width, int height, real angleIn, real angleOut) {
 	NotifyEventAll(EV_USER_SYSTEM + 2, path, left, top, right, down, width, height, angleIn, angleOut);
 }
 
-function SpellName1(name, r, g, b, obj) {
-	NotifyEventAll(EV_USER_SYSTEM + 3, name, r, g, b, obj);
+function SpellName1(string name, int r, int g, int b, int objBoss) {
+	NotifyEventAll(EV_USER_SYSTEM + 3, name, r, g, b, objBoss);
 }
 
-function Concentration1(x, y, duration, duration2, density, radius, radius2, angle, blend, r, g, b, graphic) {
+function Concentration1(real x, real y, int duration, int duration2, int density, real radius, real radius2, real angle, int blend,
+						int r, int g, int b, int graphic) {
 	NotifyEventAll(EV_USER_SYSTEM + 4, 0, x, y, duration, duration2, density, radius, radius2, angle, blend, r, g, b, graphic);
 }
 
-function Concentration2(x, y, duration, duration2, duration3, density, radius, angle, angle2, size, blend, r, g, b) {
+function Concentration2(real x, real y, int duration, int duration2, int duration3, int density, real radius, real angle, real angle2,
+					    real size, int blend, int r, int g, int b) {
 	NotifyEventAll(EV_USER_SYSTEM + 4, 1, x, y, duration, duration2, duration3, density, radius, angle, angle2, size, blend, r, g, b);
 }
 
-function Explosion1(x, y, duration, density, speedMin, speedMax, radius, blend, r, g, b, graphic) {
+function Explosion1(real x, real y, int duration, int density, real speedMin, real speedMax, real radius, int blend,
+				    int r, int g, int b, int graphic) {
 	NotifyEventAll(EV_USER_SYSTEM + 5, x, y, duration, density, speedMin, speedMax, radius, blend, r, g, b, graphic);
 }
 
-function PreExplosion1(x, y, duration, duration2, density, speedMin, speedMax, blend, r, g, b, graphic) {
+function PreExplosion1(real x, real y, int duration, int duration2, int density, real speedMin, real speedMax, int blend,
+					   int r, int g, int b, int graphic) {
 	NotifyEventAll(EV_USER_SYSTEM + 6, x, y, duration, duration2, density, speedMin, speedMax, blend, r, g, b, graphic);
+}
+
+function MagicCircle(int objMove, real minSize, real maxSize) {
+	NotifyEventAll(EV_USER_SYSTEM + 7, objMove, minSize, maxSize);
 }

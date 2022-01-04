@@ -35,6 +35,7 @@ task Main {
 	ObjPrim_SetTexture(objBoss, imgDirectory ~ "placeholder/nar.png");
 	ObjSprite2D_SetSourceRect(objBoss, 0, 0, 100, 100);
 	ObjSprite2D_SetDestCenter(objBoss);
+	MagicCircle(objBoss, 1, 1.5);
 
 	wait(60);
 	let objScene = GetEnemyBossSceneObjectID;
